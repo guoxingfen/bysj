@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.CommentVoMapper">
+   
+   <resultMap type="commentVo" id="commentReply">
+     <id property="id" column="id"/>
+     <result property="sid" column="sid"/>
+     <result property="content" column="content"/>
+     <result property="gid" column="gid"/>
+     <result property="createtime" column="createtime"/>
+     <result property="uname" column="uname"/>
+     <result property="pic" column="pic"/>
+     <collection property="replys" javaType="list" ofType="replyVo">
+       <id property="id" column="rid"/>
+       <result property="sid" column="rsid"/>
+       <result property="content" column="rcontent"/>
+       <result property="cid" column="rcid"/>
+       <result property="createtime" column="rcreatetime"/>
+       <result property="uname" column="runame"/>
+       <result property="pic" column="rpic"/>
+     </collection>
+   </resultMap>
+   <!-- 查询某个物品所有评论 -->
+   <select id="queryAllComment" resultMap="commentReply" parameterType="int">
+     SELECT c.`id`,c.`sid`,c.`gid`,c.`content`,c.`createtime`,s.uname,s.pic,
+     rr.`id` rid,rr.`sid` rsid,rr.`content` rcontent,rr.`cid` rcid,rr.`createtime` rcreatetime,rr.`uname` runame,rr.`pic` rpic
+     FROM `comment` c LEFT JOIN stu_info s ON c.sid=s.id
+     LEFT JOIN `replystu` rr ON c.`id`=rr.cid where c.`gid`=#{id}
+   </select>
+   <!-- 查询评论的id -->
+   <select id="getCommentIdsByGids" parameterType="list" resultType="int">
+      SELECT `id` FROM `comment`
+      <where>
+        <foreach collection="list" item="gid" open="and gid in(" separator="," close=")">
+         #{gid}
+        </foreach>
+      </where>
+   </select>
+   
+   
+   <!-- 添加评论 -->
+   <insert id="addComment" parameterType="comment">
+    
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+     INSERT INTO `comment` (`sid`,`gid`,`content`,`createtime`) 
+     VALUES(#{sid},#{gid},#{content},#{createtime})
+   </insert>
+   <!-- 删除评论 -->
+   <delete id="removeComments" parameterType="list">
+     DELETE FROM `comment`
+     <where>
+       <foreach collection="list" item="gid" open="and gid in(" separator="," close=")">
+         #{gid}
+       </foreach>
+     </where>
+   </delete>
+   
+   <delete id="removeCommentsByIds" parameterType="list">
+     DELETE FROM `comment`
+     <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+   
+   
+</mapper>

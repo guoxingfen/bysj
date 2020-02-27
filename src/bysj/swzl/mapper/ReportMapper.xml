@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.ReportMapper">
+   
+   <!-- 统计举报表中的某条物品信息的举报人数 -->
+   <select id="getTotal" parameterType="int">
+      SELECT COUNT(*) FROM report WHERE gid=#{gid}
+   </select>
+   <!-- 根据举报人id与物品信息id查找举报信息 -->
+   <select id="getReportBySidAndGid" parameterType="report" resultType="report">
+      SELECT `id`,`gid`,`sid` FROM `report` where `gid`=#{gid} AND `sid`=#{sid}
+   </select>
+   <!-- 插入一条举报信息 -->
+   <insert id="addReport" parameterType="report">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+       INSERT INTO `report` (`gid`, `sid`) VALUES (#{gid}, #{sid})
+   </insert>
+   <!-- 删除举报信息 -->
+   <delete id="removeReports" parameterType="list">
+     DELETE FROM `report` 
+     <where>
+       <foreach collection="list" separator="," item="gid" open="and gid in(" close=")">
+         #{gid}
+       </foreach>
+     </where>
+   </delete>
+   
+   
+   
+   
+</mapper>

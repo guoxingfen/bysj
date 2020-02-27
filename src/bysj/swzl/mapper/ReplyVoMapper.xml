@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.ReplyVoMapper">
+   <!-- 查询相应评论下的所有回复 -->
+   <select id="queryAll" resultType="replyVo" parameterType="int">
+     SELECT r.`id`,r.`sid`,r.`content`,r.`cid`,r.`createtime`,s.uname,s.pic 
+     FROM `reply` r,stu_info s where r.`sid`=s.id AND `cid`=#{cid}
+   </select>
+
+   <!-- 添加回复 -->
+   <insert id="addReply" parameterType="reply">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID() 
+     </selectKey>
+     INSERT INTO `reply` (`sid`,`content`,`cid`,`createtime`) 
+     VALUES(#{sid},#{content},#{cid},#{createtime})
+   </insert>
+   
+   <!-- 删除回复 -->
+   <delete id="removeReply" parameterType="int">
+      DELETE FROM `reply` WHERE `id` = #{id}
+   </delete>
+   
+   <!-- 删除相应评论下的所有回复 -->
+   <delete id="deleteAllReply" parameterType="list">
+      DELETE FROM `reply`
+      <where>
+        <foreach collection="list" item="cid" open="and cid in(" separator="," close=")">
+          #{cid}
+        </foreach>
+      </where>
+   </delete>
+
+
+
+
+
+
+
+
+</mapper>

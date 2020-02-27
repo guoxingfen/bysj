@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.NoticeBoardMapper">
+   
+   <!-- 根据公告id查看公告详情 -->
+   <select id="queryNoticeById" parameterType="int" resultType="noticeBoard">
+     SELECT `id`,`title`,`detail`,`createtime`
+     FROM `notice_board` WHERE `id`=#{id}
+   </select>
+   
+   <!-- 统计总数 -->
+   <select id="getTotal" resultType="int">
+     select count(*) from `notice_board`
+   </select>
+   
+   
+   <!-- 查询所有公告 -->
+   <select id="queryAll" resultType="noticeBoard">
+      SELECT `id`,`title`,`detail`,`createtime` 
+      FROM `notice_board` ORDER BY `createtime` DESC
+   </select>
+   <!-- 添加公告 -->
+   <insert id="addNoticeBoard" parameterType="noticeBoard">
+     <selectKey keyProperty="id" resultType="int" order="AFTER">
+        select LAST_INSERT_ID() 
+     </selectKey>
+     INSERT INTO `mydb`.`notice_board` (`title`, `detail`) VALUES
+     (#{title}, #{detail})
+   </insert>
+   <!-- 删除公告 -->
+   <delete id="deleteNoticeBoards" parameterType="list">
+     DELETE FROM `notice_board`
+     <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+   <!-- 更新公告 -->
+   <update id="updateNoticeBoard" parameterType="noticeBoard">
+      UPDATE `notice_board` 
+      SET `title` = #{title},`detail` = #{detail}
+      WHERE `id` = #{id}
+   </update>
+   
+   
+   
+   
+   
+   
+</mapper>

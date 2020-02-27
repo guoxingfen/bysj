@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.HtuserMapper">
+  
+   <!-- 获取全部管理员 -->
+   <select id="getAllHtuser" resultType="htuser">
+     SELECT `id`,`username`,`phone`,`role`,`jointime`,`status`,`gender` 
+     FROM `htuser` ORDER BY `jointime` DESC
+   </select>
+   
+   <!-- 统计管理员 -->
+   <select id="getTotal" resultType="int" parameterType="map">
+     select count(*) from `htuser`
+     <where>
+       <if test="status==0">
+         and `status`=0
+       </if>
+       <if test="status==1">
+         and `status`=1
+       </if>
+     </where>
+   </select>
+   
+   
+   <!-- 获取某个管理员 -->
+   <select id="getHtuserById" parameterType="int" resultType="htuser">
+     SELECT `id`,`username`,`phone`,`role`,`jointime`,`status`,`gender`,`password`
+     FROM `htuser` 
+     WHERE `id`=#{id}
+   </select>
+   <!-- 根据账户名和密码查找管理员 -->
+   <select id="getHtuserByUsernameAndPwd" parameterType="htuser" resultType="htuser">
+     SELECT `id`,`username`,`phone`,`role`,`jointime`,`status`,`gender` 
+     FROM `htuser` 
+     WHERE `username`=#{username} AND `password`=#{password}
+   </select>
+   
+   
+   
+   <!-- 添加管理员 -->
+   <insert id="addHtuser" parameterType="htuser">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+        select LAST_INSERT_ID()
+     </selectKey>
+      INSERT INTO `htuser` (`username`,`password`,`phone`,`role`,`jointime`,`gender`) 
+      VALUES(#{username},#{password},#{phone},#{role},#{jointime},#{gender})
+   </insert>
+   
+   <!-- 删除管理员 -->
+   <delete id="removeHtusers" parameterType="list">
+     DELETE FROM`htuser` 
+     <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+   <!-- 改变管理员状态 -->
+   <update id="changeStatus" parameterType="map">
+     UPDATE `htuser` 
+     SET `status` = #{status}
+     <where>
+       <foreach collection="ids" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </update>
+   
+   <!-- 更新 -->
+   <update id="updateHtuser" parameterType="htuser">
+     UPDATE `htuser` 
+     SET `username` = #{username},`password` = #{password},`phone` = #{phone},
+         `role` = #{role},`gender` = #{gender} 
+     WHERE `id` = #{id}
+   </update>
+   
+   
+   
+   
+</mapper>

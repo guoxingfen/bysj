@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.PraiseMapper">
+   <!-- 查询某个用户接收到的所有表扬信息并分页 -->
+   <select id="queryAllByToSid" parameterType="queryFactor" resultType="praiseVo">
+     SELECT p.`id`,p.`fromSid`,p.`toSid`,p.`content`,p.`createtime`,s.`uname`,s.`pic`
+     FROM `praise` p,`stu_info` s WHERE p.`fromSid`=s.`id` AND `toSid`=#{sid} 
+     ORDER BY p.`createtime` DESC limit #{startIndex},#{pageSize}
+   </select>
+   <!-- 获取表扬信信息 -->
+   <select id="getPraise" resultType="praiseVo">
+     SELECT p.`id`,p.`content`,s.`uname`,s1.`uname` 'toname' FROM praise p
+     LEFT JOIN stu_info s ON p.`fromSid`=s.`id` 
+     LEFT JOIN stu_info s1 ON p.`toSid`=s1.`id`
+     ORDER BY p.`createtime` DESC limit 0,12
+   </select>
+   
+   
+   <!-- 查询某个用户收到表扬信的总数 -->
+   <select id="getTotalByToSid" parameterType="int" resultType="int">
+     select count(*) from `praise` WHERE  `toSid`=#{toSid}
+   </select>
+   <!-- 查询表扬信详情 -->
+   <select id="queryPraiseById" parameterType="int" resultType="praiseVo">
+     SELECT p.`id`,p.`fromSid`,p.`toSid`,p.`content`,p.`createtime`,s.`uname`,s.`pic`
+     FROM `praise` p,`stu_info` s WHERE p.`fromSid`=s.`id` AND p.`id`=#{id} 
+   </select>
+   
+   
+   <!-- 添加一条表扬信息 -->
+   <insert id="addPraise" parameterType="praise">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+       insert into `praise` (`fromSid`,`toSid`,`content`,`createtime`) 
+       values(#{fromSid},#{toSid},#{content},#{createtime})
+   </insert>
+   <!-- 删除指定id的表扬信息 -->
+   <delete id="removePraise" parameterType="int">
+      DELETE FROM `praise` WHERE `id` = #{id}
+   </delete>
+   
+   
+   
+</mapper>

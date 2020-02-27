@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.KindMapper">
+   <!-- 获取全部分类 -->
+   <select id="getAllKind" resultType="kind">
+       SELECT `id`,`code`,`desc` 
+       FROM `kinds` 
+   </select>
+   <!-- 获取分类 -->
+   <select id="getKindById" parameterType="int" resultType="kind">
+     SELECT `id`,`code`,`desc` 
+       FROM `kinds` WHERE `id`=#{id}
+   </select>
+   
+   <!-- 添加分类 -->
+   <insert id="addKind" parameterType="kind">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+       INSERT INTO `kinds` (`code`, `desc`) 
+       VALUES(#{code}, #{desc}) 
+   </insert>
+   <!-- 更新分类 -->
+   <update id="updateKind" parameterType="kind">
+       UPDATE `kinds` 
+       SET `code` = #{code},
+           `desc` = #{desc} 
+           WHERE `id` = #{id}
+   </update>
+   <!-- 删除分类 -->
+   <delete id="removeKind" parameterType="list">
+      DELETE FROM `kinds`
+      <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+          #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+</mapper>

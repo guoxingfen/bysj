@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.InstituteMapper">
+   
+   <!-- 查询所有的学院 -->
+   <select id="queryAllInstitute" resultType="institute">
+     SELECT `id`,`code`,`desc` FROM `institute` 
+   </select>
+   
+   
+   <!-- 查找学院 -->
+   <select id="getInstituteById" parameterType="int" resultType="institute">
+    SELECT `id`,`code`,`desc` FROM `institute`
+    WHERE `id`=#{id}
+   </select>
+   
+   <select id="getInstituteByDesc" parameterType="string" resultType="institute">
+     SELECT `id`,`code`,`desc` FROM `institute` WHERE `desc`=#{desc}
+   </select>
+   
+   <!-- 添加学院 -->
+   <insert id="addInstitute" parameterType="institute">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+       INSERT INTO `mydb`.`institute` (`code`, `desc`) 
+       VALUES (#{code}, #{desc}) ;
+   </insert>
+   <!-- 更新学院 -->
+   <update id="updateInstitute" parameterType="institute">
+     UPDATE `institute` 
+     SET `code` = #{code},`desc` = #{desc} 
+     WHERE `id` = #{id};
+   </update>
+   
+   
+   
+   
+   
+   
+   <!-- 批量删除学院 -->
+   <delete id="removeInstitute" parameterType="list">
+     DELETE FROM `institute`
+     <where>
+       <foreach collection="list" item="iid" open="and id in(" separator="," close=")">
+          #{iid}
+       </foreach>
+     </where>
+   </delete>
+   
+   
+</mapper>

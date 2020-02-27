@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd ">
+  <!-- 加载配置文件 -->
+  <context:property-placeholder location="classpath:db.properties"/>
+  <!-- 配置DBCP数据源 -->
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 连接池的最大数据库连接数 -->
+		<property name="maxActive" value="250" />
+		<!-- 最大空闲数 -->
+		<property name="maxIdle" value="50" />
+		<!-- 验证链接是否有效的sql语句 -->
+		<property name="validationQuery" value="select 1" />
+		<property name="testWhileIdle" value="true"/> 
+		<property name="timeBetweenEvictionRunsMillis" value="3600000"/>
+		<property name="minEvictableIdleTimeMillis" value="18000000"/>
+		<property name="testOnBorrow" value="true"/>
+	</bean>
+  <!-- 整合mybatis -->
+  <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+     <property name="dataSource" ref="dataSource"/>
+     <property name="configLocation" value="classpath:mybatis/sqlMapConfig.xml"/>
+  </bean>
+  <!-- 使用Mapper动态代理开发 -->
+  <!-- 配置mapper文件扫描组件  -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+     <property name="basePackage" value="bysj.swzl.mapper"/>
+  </bean>
+  <!-- 注解配置 -->
+  <context:annotation-config/>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</beans>

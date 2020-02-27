@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.FollowMapper">
+  
+  <!-- 查询某个用户是否关注指定的物品信息 -->
+  <select id="queryFollow" parameterType="follow" resultType="follow">
+    SELECT `id`,`sid`,`gid` FROM `follow` where `sid`=#{sid} AND `gid`=#{gid}
+  </select>
+  <!-- 查询某个用户关注信息的总数 -->
+  <select id="getTotal" parameterType="int" resultType="int">
+    select count(*) FROM `follow` where `sid`=#{sid}
+  </select>
+  
+  
+  
+  <!-- 添加关注 -->
+  <insert id="addFollow" parameterType="follow">
+    <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID() 
+    </selectKey>
+    INSERT INTO `follow` (`sid`, `gid`) VALUES(#{sid}, #{gid}) ;
+  </insert>
+  <!-- 取消关注 -->
+  <delete id="removeFollow" parameterType="follow">
+     delete from `follow` where `sid`=#{sid} AND `gid`=#{gid}
+  </delete>
+  
+  <!-- 批量删除关注 -->
+  <delete id="deleteFollows" parameterType="list">
+     delete from `follow`
+     <where>
+       <foreach collection="list" item="gid" open="and gid in(" separator="," close=")">
+        #{gid}
+       </foreach>
+     </where>
+  </delete>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</mapper>

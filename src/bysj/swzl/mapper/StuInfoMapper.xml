@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.StuInfoMapper">
+   
+   <sql id="select_sql">
+      SELECT `id`,`uname`,`sex`,`mphone`,`pic`,`institute`,`unumber`,`uclass`,`major`,`status`
+   </sql>
+   
+   <!-- 通过用户Id查询用户 -->
+   <select id="getStuInfoById" parameterType="int" resultType="stuInfo">
+	<include refid="select_sql"/>
+	FROM `stu_info` where id=#{id}
+   </select>
+   
+   <!-- 统计用户人数 -->
+   <select id="getTotal" resultType="int" parameterType="map">
+     select count(*) from `stu_info`
+     <where>
+       <if test="status==0">
+         and `status`=0
+       </if>
+       <if test="status==1">
+         and `status`=1
+       </if>
+     </where>
+   </select>
+   
+   
+   <!-- 通过用户名/手机号/学号和密码查询用户 -->
+   <select id="getStuInfoToLogin" parameterType="stuInfo" resultType="stuInfo">
+      <include refid="select_sql"/> from stu_info
+      <where>
+        <if test="password!=null">
+          and password=#{password}
+        </if>
+        <if test="uname!=null">
+          and uname=#{uname}
+        </if>
+        <if test="mphone!=null">
+          or mphone=#{mphone}
+        </if>
+        <if test="unumber!=null">
+          or unumber=#{unumber}
+        </if>
+      </where>
+   </select>
+
+   <!-- // 查询用户并返回用户 -->
+   <select id="getStuInfo" parameterType="stuInfo" resultType="stuInfo">
+      <include refid="select_sql"/> from stu_info
+      <where>
+        <if test="uname!=null">
+          or uname=#{uname}
+        </if>
+        <if test="mphone!=null">
+          or mphone=#{mphone}
+        </if>
+        <if test="unumber!=null">
+          or unumber=#{unumber}
+        </if>
+      </where>
+   </select>
+   <!-- 查询所有的用户 -->
+   <select id="getAllStuInfo" resultType="stuInfo">
+     <include refid="select_sql"/> from stu_info
+   </select>
+   <!-- 插入用户 -->
+   <insert id="insertStuInfo" parameterType="stuInfo">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID() 
+     </selectKey>
+     insert into stu_info(`uname`,`sex`,`mphone`,`pic`,`password`,`institute`,`unumber`,`uclass`,`major`,`status`)
+     values(#{uname},#{sex},#{mphone},#{pic},#{password},#{institute},#{unumber},#{uclass},#{major},#{status})
+   </insert>
+   <!-- 更新用户 -->
+   <update id="updateStuInfo" parameterType="stuInfo">
+      UPDATE stu_info 
+      SET `uname` = #{uname},`sex`=#{sex},`mphone` = #{mphone},
+           `pic` = #{pic},
+           `institute`= #{institute},
+           `unumber` = #{unumber},
+           `major`=#{major},
+           `uclass` = #{uclass} WHERE `id` =#{id} ;
+   </update>
+   <!-- 重置用户密码 -->
+   <update id="resetPassWord" parameterType="stuInfo">
+      UPDATE stu_info 
+      SET `password` = #{password}
+            WHERE `id` =#{id}
+   </update>
+   <!-- 更改用户的状态-->
+   <update id="changeStuStatus" parameterType="map">
+     UPDATE stu_info 
+      SET `status` = #{status}
+      <where>
+        <foreach collection="ids" item="id" open="and id in(" separator="," close=")">
+          #{id}
+        </foreach>
+      </where>
+   </update>
+   
+   
+   
+   
+   
+   
+   
+   
+</mapper>

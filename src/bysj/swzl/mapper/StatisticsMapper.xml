@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.StatisticsMapper">
+   
+   <!-- 统计物品种类与每个种类的数量 -->
+   <select id="statisticsKind" resultType="kindStatistics">
+      SELECT k.`desc`,COUNT(g.`kid`) total FROM `kinds` k LEFT JOIN `goods_info` g ON g.`kid`=k.`id`
+      GROUP BY k.`id`
+   </select>
+   <!-- 统计常见地点丢失或拾到物品的数量 -->
+   <select id="statisticsAddress" resultType="addressStatistics">
+     SELECT '教学楼' address,COUNT(*) total FROM `goods_info` 
+     WHERE `address` LIKE '%教学楼%' OR `address` LIKE '%课室%'
+     UNION
+     SELECT '宿舍' ,COUNT(*) FROM `goods_info` 
+     WHERE `address` LIKE '%宿舍%'
+     UNION
+     SELECT '饭堂' ,COUNT(*) FROM `goods_info` 
+     WHERE `address` LIKE '%饭堂%'
+     UNION
+     SELECT '体育馆' ,COUNT(*) FROM `goods_info` 
+     WHERE `address` LIKE '%体育馆%' OR `address` LIKE '%运行场%'
+     UNION
+     SELECT '校道内' ,COUNT(*) FROM `goods_info` 
+     WHERE `address` LIKE '%校道内%' OR `address` LIKE '%路上%'
+     UNION
+     SELECT '图书馆' ,COUNT(*) FROM `goods_info` 
+     WHERE `address` LIKE '%图书馆%'
+   </select>
+   <!-- 统计时间段信息 -->
+   <select id="statisticsTime" resultType="timeStatistics">
+     SELECT HOUR(`date`) hour,COUNT(`date`) total FROM `goods_info` GROUP BY HOUR(`date`)
+   </select>
+   
+   
+   
+</mapper>

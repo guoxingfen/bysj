@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.FamousRemarkMapper">
+
+   <!-- 获取名言 -->
+   <select id="getFamousRemarkById" parameterType="int" resultType="famousRemark">
+     SELECT `id`,`pic`,`content`,`from`,`createtime` 
+      FROM `famous_remark` WHERE `id`=#{id}
+   </select>
+
+   <!-- 统计总数 -->
+   <select id="getTotal" resultType="int">
+     select count(*) from `famous_remark`
+   </select>
+
+   <!-- 获取全部名言 -->
+   <select id="getAllFamousRemark" resultType="famousRemark">
+      SELECT `id`,`pic`,`content`,`from`,`createtime` 
+      FROM `famous_remark` ORDER BY `createtime` DESC
+   </select>
+   <!-- 添加名言 -->
+   <insert id="addFamousRemark" parameterType="famousRemark">
+     <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID()
+     </selectKey>
+       INSERT INTO `famous_remark` (`pic`,`content`,`from`) 
+       VALUES(#{pic},#{content},#{from}) 
+   </insert>
+   <!-- 删除名言 -->
+   <delete id="removeFamousRemarks" parameterType="list">
+     DELETE FROM `famous_remark` 
+     <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+   <!-- 更新名言 -->
+   <update id="updateFamousRemark" parameterType="famousRemark">
+     UPDATE `famous_remark` 
+      SET `pic` = #{pic},`content` = #{content},`from` = #{from} 
+     WHERE `id` = #{id}
+   </update>
+   
+   
+   
+   
+   
+   
+</mapper>

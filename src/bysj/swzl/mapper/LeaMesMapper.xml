@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.LeaMesMapper">
+
+   <!-- 获取全部留言 -->
+   <select id="queryAllLeaMes" resultType="leaMesVo">
+      SELECT l.`id`,l.`message`,l.`sid`,l.`date`,s.uname,s.pic 
+     FROM `leave_message` l LEFT JOIN stu_info s ON l.`sid`=s.id
+     ORDER BY `date` DESC
+   </select>
+
+
+   <!-- 统计条数 -->
+   <select id="getTotal" resultType="int">
+     select count(*) from `leave_message`
+   </select>
+
+   <!-- 查询所有的留言并分页 -->
+   <select id="getAllLeaMes" parameterType="pageModel" resultType="leaMesVo">
+     SELECT l.`id`,l.`message`,l.`sid`,l.`date`,s.uname,s.pic 
+     FROM `leave_message` l LEFT JOIN stu_info s ON l.`sid`=s.id
+     ORDER BY `date` DESC
+     limit #{startIndex},#{pageSize}
+   </select>
+   <!-- 添加留言 -->
+   <insert id="addLeaMes" parameterType="leaMes">
+      <selectKey keyProperty="id" order="AFTER" resultType="int">
+       select LAST_INSERT_ID() 
+      </selectKey>
+      INSERT INTO `leave_message` (`message`, `sid`, `date`) 
+      VALUES(#{message},#{sid},#{date})
+   </insert>
+   <!-- 删除留言 -->
+   <delete id="removeLeaMes" parameterType="list">
+      DELETE FROM `leave_message`
+      <where>
+        <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+          #{id}
+        </foreach>
+      </where>
+   </delete>
+   
+   
+   
+   
+</mapper>

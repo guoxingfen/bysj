@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.GoodsInfoMapper">
+   
+   <sql id="goodsInfo">
+   SELECT `id`,`type`,`kid`,`pic`,`title`,`detail`,`address`,`date`,`sid`,`contact_address`
+   ,`publish_date`,`pageview`,`status`,`phone`
+   </sql>
+   
+   <resultMap type="goodsInfoVo" id="gg">
+     <id property="goodsInfo.id" column="id"/>
+     <result property="goodsInfo.type" column="type"/>
+     <result property="goodsInfo.kid" column="kid"/>
+     <result property="goodsInfo.pic" column="pic"/>
+     <result property="goodsInfo.title" column="title"/>
+     <result property="goodsInfo.detail" column="detail"/>
+     <result property="goodsInfo.address" column="address"/>
+     <result property="goodsInfo.date" column="date"/>
+     <result property="goodsInfo.sid" column="sid"/>
+     <result property="goodsInfo.contact_address" column="contact_address"/>
+     <result property="goodsInfo.publish_date" column="publish_date"/>
+     <result property="goodsInfo.pageview" column="pageview"/>
+     <result property="goodsInfo.status" column="status"/>
+     <result property="goodsInfo.phone" column="phone"/>
+     <result property="kdesc" column="kdesc"/>
+   </resultMap>
+   
+   
+   <!-- 根据信息类型查询物品信息并分页 -->
+   <select id="getGoodsByGoodsTypePaging" parameterType="searchFactor" resultMap="gg">
+     SELECT g.`id`,`type`,`kid`,`pic`,`title`,`detail`,`address`,`date`,`sid`,`contact_address`
+   ,`publish_date`,`pageview`,`status`,`phone`,k.desc kdesc FROM `goods_info` g LEFT JOIN 
+   kinds k ON g.`kid`=k.id
+     <where>
+       <if test="lost!=null and get==null">
+         and `type`=#{lost}
+       </if>
+       <if test="get!=null and lost==null">
+         and `type`=#{get}
+       </if>
+       <if test="get!=null and lost!=null">
+         and  (`type`=#{lost} or `type`=#{get})
+       </if>
+       <if test="kids!=null">
+         <foreach collection="kids" item="kid" open="and kid in(" separator="," close=")">
+          #{kid}
+         </foreach>
+       </if>
+       <if test="status!=null">
+         <foreach collection="status" item="s" open="and status in(" separator="," close=")">
+          #{s}
+         </foreach>
+       </if>
+       <if test="status==null">
+         and `status`=0
+       </if>
+       <if test="date!=null">
+         and `publish_date`>#{date}
+       </if>
+       <if test="keyword!=null">
+         and (`detail` like '%${keyword}%' or `title` like '%${keyword}%')
+       </if>
+     </where>
+       <if test="sort==null">ORDER BY `publish_date` DESC</if>
+       <if test="sort==0">ORDER BY `publish_date` DESC</if>
+       <if test="sort==1">ORDER BY `publish_date` ASC</if>
+       limit #{startIndex},#{pageSize}
+   </select>
+   <!-- 根据物品类型查询物品的总数 -->
+   <select id="getTotalByType" parameterType="searchFactor" resultType="int">
+     select count(*) from `goods_info`
+      <where>
+       <if test="lost!=null and get==null">
+         and `type`=#{lost}
+       </if>
+       <if test="get!=null and lost==null">
+         and `type`=#{get}
+       </if>
+       <if test="get!=null and lost!=null">
+         and  (`type`=#{lost} or `type`=#{get})
+       </if>
+       <if test="kids!=null">
+         <foreach collection="kids" item="kid" open="and kid in(" separator="," close=")">
+          #{kid}
+         </foreach>
+       </if>
+       <if test="status!=null">
+         <foreach collection="status" item="s" open="and status in(" separator="," close=")">
+          #{s}
+         </foreach>
+       </if>
+       <if test="status==null">
+         and `status`=0
+       </if>
+       <if test="date!=null">
+         and `publish_date`>#{date}
+       </if>
+       <if test="keyword!=null">
+         and (`detail` like '%${keyword}%' or `title` like '%${keyword}%')
+       </if>
+      </where>
+   </select>
+   <!-- 根据物品类型获取相应物品总数 -->
+   <select id="getTotalByKind" parameterType="map" resultType="int">
+      select count(*) from `goods_info`
+      <where>
+          and `type`=#{type} 
+        <if test="status==0">
+          and `status`=0
+        </if>
+        <if test="status==1">
+          and `status`=1
+        </if>
+      </where>
+      
+   </select>
+   
+   
+   
+   <!-- 获取喜报公告的信息 -->
+   <select id="getGoodNews" resultType="map">
+      SELECT s.uname,k.desc from `goods_info` g LEFT JOIN stu_info s on g.`sid`=s.id
+      LEFT JOIN kinds k ON g.`kid`=k.id WHERE g.`status`=1 ORDER BY `publish_date` DESC
+      limit 0,12
+   </select>
+   
+   <!-- 获取好人榜的信息（前5名） -->
+   <select id="getGoodMan" resultType="map">
+      SELECT COUNT(*) frequency,  g.`sid`,s.`uname` FROM goods_info g
+      LEFT JOIN stu_info s ON g.sid=s.`id` WHERE  TYPE='Get_Goods'
+      GROUP BY g.sid
+      ORDER BY frequency DESC limit 0,5
+   </select>
+   
+   
+   <!-- 根据Id查看物品信息 -->
+   <select id="getGoodsById" parameterType="int" resultMap="gg">
+     SELECT g.`id`,`type`,`kid`,`pic`,`title`,`detail`,`address`,`date`,`sid`,`contact_address`
+   ,`publish_date`,`pageview`,`status`,`phone`,k.desc kdesc FROM `goods_info` g LEFT JOIN 
+   kinds k ON g.`kid`=k.id where g.`id`=#{id}
+   </select>
+   <!-- 查询图片不为空的所有物品信息 -->
+   <select id="getGoodsPicNotNull" resultType="goodsInfo">
+      <include refid="goodsInfo"/>
+      FROM `goods_info` where `pic` IS NOT NULL AND `pic`!="" AND `status`=0
+      ORDER BY `publish_date` DESC limit 0,15
+   </select>
+   
+   <!-- 根据物品信息查询物品列表 -->
+   <select id="queryGoodsByGoodsInfo" parameterType="goodsInfo" resultType="goodsInfo">
+      <include refid="goodsInfo"/>
+      FROM `goods_info`
+      <where>
+         and `pic` IS NOT NULL AND `pic`!="" and `status`=0
+        <if test="kid!=null">
+         and kid=#{kid}
+        </if>
+        <if test="type!=null">
+         and type=#{type}
+        </if>
+      </where>
+      ORDER BY `publish_date` DESC limit 0,5
+   </select>
+   
+   
+   
+   <!-- 根据信息类型查询所属物品 -->
+   <select id="getGoodsByGoodsType" parameterType="bysj.swzl.constant.GoodsType" resultType="goodsInfo">
+      <include refid="goodsInfo"/>
+      FROM `goods_info` where `type`=#{type} and `status`=0
+      ORDER BY `publish_date` DESC limit 0,15
+   </select>
+   
+   <!-- 查询某个用户发布的信息并实现分页查询 -->
+   <select id="queryFollowGoods" parameterType="queryFactor" resultType="goodsInfo">
+     SELECT `id`,`type`,`kid`,`pic`,`title`,`detail`,`address`,`date`,`sid`,
+     `contact_address`,`publish_date`,`pageview`,`status`,`phone`
+     FROM `goods_info`
+     <where>
+        and `id` in(select `gid` from `follow` where `sid`=#{sid})
+       <if test="lost!=null and get==null">
+        and `type`=#{lost}
+       </if>
+       <if test="get!=null and lost==null">
+        and `type`=#{get}
+       </if>
+       <if test="get!=null and lost!=null">
+       and  (`type`=#{lost} or `type`=#{get})
+       </if>
+     </where>
+     <if test="sort==0">ORDER BY `publish_date` DESC</if>
+     <if test="sort==1">ORDER BY `publish_date` ASC</if>
+     limit #{startIndex},#{pageSize}
+   </select>
+   <!-- 查询某个用户关注的所有信息 -->
+   <select id="queryGoodsBySid" parameterType="queryFactor" resultType="goodsInfo">
+     <include refid="goodsInfo"/>
+     FROM `goods_info` 
+     <where>
+        and `sid`=#{sid}
+       <if test="lost!=null and get==null">
+        and `type`=#{lost}
+       </if>
+       <if test="get!=null and lost==null">
+        and `type`=#{get}
+       </if>
+       <if test="get!=null and lost!=null">
+       and  (`type`=#{lost} or `type`=#{get})
+       </if>
+     </where>
+     <if test="sort==0">ORDER BY `publish_date` DESC</if>
+     <if test="sort==1">ORDER BY `publish_date` ASC</if>
+     limit #{startIndex},#{pageSize}
+   </select>
+   
+   <!-- 查询某个用户发布信息的总数 -->
+   <select id="getTotalBySid" parameterType="queryFactor" resultType="int">
+      select count(*) FROM `goods_info`
+      <where>
+       and `sid`=#{sid}
+       <if test="lost!=null and get==null">
+        and `type`=#{lost}
+       </if>
+       <if test="get!=null and lost==null">
+        and `type`=#{get}
+       </if>
+      </where>
+   </select>
+   
+   <!-- 插入一条物品信息 -->
+   <insert id="insertGoodsInfo" parameterType="goodsInfo">
+     <selectKey keyProperty="id" resultType="int" order="AFTER">
+        select LAST_INSERT_ID()
+     </selectKey>
+     insert into `goods_info` (`TYPE`,`kid`,`pic`,`title`,`detail`,`address`,`DATE`,`sid`,`contact_address`,
+     `publish_date`,`pageview`,`status`,`phone` )
+	values(#{type},#{kid},#{pic},#{title},#{detail},#{address},#{date},#{sid},#{contact_address}
+	,#{publish_date},#{pageview},#{status},#{phone})
+   </insert>
+   
+   <!-- 更新物品信息 -->
+   <update id="updateGoods" parameterType="goodsInfo">
+     UPDATE `goods_info` 
+      SET `type` = #{type},`kid` = #{kid},`pic` = #{pic},`title` = #{title},
+          `detail` = #{detail},`address` = #{address},`date` = #{date},
+          `contact_address` = #{contact_address},
+          `pageview` = #{pageview},`status` = #{status},`phone` = #{phone} 
+    WHERE `id` = #{id} ;
+   </update>
+   
+   <!-- 删除物品信息 -->
+   <delete id="deleteGoodsById" parameterType="int">
+     DELETE FROM `goods_info` 
+     WHERE `id` =#{id}
+   </delete>
+   
+   
+   
+   
+   
+   
+</mapper>

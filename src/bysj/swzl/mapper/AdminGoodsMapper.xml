@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="bysj.swzl.mapper.AdminGoodsMapper">
+   
+   <!-- 根据物品类型获取全部物品信息 -->
+   <select id="getAllGoodsByType" parameterType="goodsType" resultType="adminGoodsInfo">
+     SELECT g.`id`,g.`type`,g.`kid`,g.`pic`,g.`title`,g.`detail`,g.`address`,g.`date`,
+     g.`sid`,g.`contact_address`,g.`publish_date`,g.`pageview`,
+     g.`status`,g.`phone`,s.`uname`,k.`desc` kdesc,count(r.`gid`) report
+     FROM `goods_info` g LEFT JOIN stu_info s ON g.`sid`=s.`id`
+     LEFT JOIN `kinds` k ON g.`kid`=k.`id`
+     LEFT JOIN `report` r ON g.`id`=r.`gid`
+     WHERE g.`type`=#{type}
+     Group By g.`id`
+     ORDER BY g.`publish_date` DESC
+   </select>
+   
+   <!-- 获取举报的物品信息 -->
+   <select id="getAllReportGoods" parameterType="map" resultType="adminGoodsInfo">
+     SELECT * FROM `admingoodsinfo`
+     WHERE `type`=#{type} and report>=#{report}
+     ORDER BY `publish_date` DESC
+   </select>
+   
+   <!-- 删除物品 -->
+   <!-- 删除物品信息 -->
+   <delete id="removeGoods" parameterType="list">
+     DELETE FROM `goods_info` 
+     <where>
+       <foreach collection="list" item="id" open="and id in(" separator="," close=")">
+         #{id}
+       </foreach>
+     </where>
+   </delete>
+   
+   
+   
+</mapper>
